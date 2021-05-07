@@ -4,15 +4,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@babel/core": "^7.14.0",
-    "@chakra-ui/core": "^0.8.0",
     "@chakra-ui/icons": "^1.0.0",
     "@chakra-ui/react": "^1.6.1",
     "@chakra-ui/system": "^1.6.5",
-    "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
     "emotion-theming": "^11.0.0",
@@ -21,12 +20,17 @@
     "graphql": "^15.5.0",
     "next": "latest",
     "prop-types": "^15.7.2",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
     "urql": "^2.0.3"
   },
   "license": "MIT",
   "devDependencies": {
+    "@graphql-codegen/cli": "1.21.4",
+    "@graphql-codegen/typescript": "1.22.0",
+    "@graphql-codegen/typescript-operations": "1.17.16",
+    "@graphql-codegen/typescript-urql": "^2.0.6",
+    "graphql-tag": "^2.12.4",
     "typescript": "^4.2.4"
   }
 }
