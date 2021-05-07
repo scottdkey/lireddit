@@ -13,7 +13,6 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from './resolvers/user';
 import { __prod__ } from './constants';
-import { MyContext } from './types';
 import cors from "cors"
 
 config()
@@ -53,7 +52,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
+    context: ({ req, res }) => ({ em: orm.em, req, res })
   })
 
   apolloServer.applyMiddleware({ app, cors: false })
