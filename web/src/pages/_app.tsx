@@ -11,12 +11,12 @@ const client = createClient({
 
 import theme from "../theme";
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }: any) {
   return (
     <Provider value={client}>
       <ThemeProvider theme={theme}>
-          <CSSReset />
-          <Component {...pageProps} />
+        <CSSReset />
+        <Component {...pageProps} />
       </ThemeProvider>
     </Provider>
   );
