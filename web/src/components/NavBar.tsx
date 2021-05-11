@@ -28,13 +28,13 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
     body = (
       <Flex>
         <Box mr={2}>{data.me.username}</Box>
-        <Button variant="link">Logout</Button>
+        <Button variant="link">logout</Button>
       </Flex>
     )
 
   }
   return (
-    <Flex bg="tomato" p={4} >
+    <Flex bg="tan" p={4} >
       <Box ml={'auto'}>
         {body}
       </Box>
