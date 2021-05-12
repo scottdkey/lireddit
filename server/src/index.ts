@@ -1,19 +1,20 @@
-import 'reflect-metadata'
 import { MikroORM } from "@mikro-orm/core";
-import Express from "express"
-import session from "express-session"
-import Redis from 'redis';
-import { ApolloServer } from 'apollo-server-express'
-import { config } from "dotenv"
-import connectRedis from 'connect-redis'
-
+import { ApolloServer } from 'apollo-server-express';
+import connectRedis from 'connect-redis';
+import cors from "cors";
+import { config } from "dotenv";
+import Express from "express";
+import session from "express-session";
+import Redis from 'ioredis';
+import 'reflect-metadata';
+import { buildSchema } from "type-graphql";
+import { COOKIE_NAME, __prod__ } from './constants';
 import microConfig from "./mikro-orm.config";
-import { buildSchema } from "type-graphql"
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from './resolvers/user';
-import { COOKIE_NAME, __prod__ } from './constants';
-import cors from "cors"
+
+// import { User } from './entities/User';
 
 config()
 const { secretKey } = process.env
@@ -21,12 +22,13 @@ const parsedKey = secretKey ? secretKey : "developmentKey";
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
+  // orm.em.nativeDelete(User, {})
   const migrator = await orm.getMigrator();
   migrator.up()
 
   const app = Express();
   const RedisStore = connectRedis(session)
-  const redisClient = Redis.createClient()
+  const redis = new Redis()
   app.use(cors({
     origin: "http://localhost:3000",
     credentials: true,
@@ -34,7 +36,7 @@ const main = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTouch: true }),
+      store: new RedisStore({ client: redis, disableTouch: true }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 year cookie
         httpOnly: true,
@@ -51,7 +53,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res })
+    context: ({ req, res }) => ({ em: orm.em, req, res, redis })
   })
 
   apolloServer.applyMiddleware({ app, cors: false })
