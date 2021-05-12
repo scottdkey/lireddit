@@ -20,7 +20,6 @@ const { secretKey } = process.env
 const parsedKey = secretKey ? secretKey : "developmentKey";
 
 const main = async () => {
-
   const orm = await MikroORM.init(microConfig);
   const migrator = await orm.getMigrator();
   migrator.up()
