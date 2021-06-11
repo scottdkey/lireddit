@@ -24,15 +24,15 @@ export const InputField: React.FC<InputFieldProps> = ({
   ...props
 }) => {
   const [field, { error }] = useField(props);
-  let C = Input;
+  let InputOrTextArea = Input;
   if (textArea) {
     // @ts-ignore
-    C = Textarea;
+    InputOrTextArea = Textarea;
   }
   return (
     <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={field.name}>{label}</FormLabel>
-      <C {...field} {...props} id={field.name} />
+      <InputOrTextArea {...field} {...props} id={field.name} />
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
   );

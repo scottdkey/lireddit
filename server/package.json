@@ -9,8 +9,7 @@
     "start": "node dist/index.js",
     "dev": "run-p watch nodemon",
     "watch": "tsc -w",
-    "nodemon": "nodemon dist/index.js",
-    "create:migration": "mikro-orm migration:create"
+    "nodemon": "nodemon dist/index.js"
   },
   "keywords": [],
   "dependencies": {

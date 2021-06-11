@@ -14,7 +14,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
     pause: isServer()
   })
 
-  
+
 
   let body = null
   if (fetching) {
@@ -40,7 +40,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
 
   }
   return (
-    <Flex bg="tan" p={4} >
+    <Flex position="sticky" zIndex={2} bg="tan" p={4} >
       <Box ml={'auto'}>
         {body}
       </Box>

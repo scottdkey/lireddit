@@ -136,6 +136,7 @@ export class UserResolver {
         password: hashedPassword,
         email: options.email
       }).save()
+      //query builder version
       // const result = await getConnection()
       //   .createQueryBuilder()
       //   .insert()
