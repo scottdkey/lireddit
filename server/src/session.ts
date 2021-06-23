@@ -1,12 +1,12 @@
 import connectRedis from "connect-redis";
 import Session from "express-session";
-import { COOKIE_NAME, __prod__ } from "../constants";
+import { COOKIE_NAME, __prod__, SECRET_KEY } from "./constants";
 import Redis from 'ioredis';
 
 
 const RedisStore = connectRedis(Session)
 
-const parsedKey = process.env.secretkey ? process.env.secretkey : "developmentKey";
+
 export const redis = new Redis()
 export const session = Session({
   name: COOKIE_NAME,
@@ -17,7 +17,7 @@ export const session = Session({
     sameSite: 'lax', //csrf
     secure: __prod__ //cookie only works in https
   },
-  secret: parsedKey,
+  secret: SECRET_KEY,
   resave: false,
   saveUninitialized: false
 })
