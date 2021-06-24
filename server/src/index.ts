@@ -8,20 +8,23 @@ import { User } from "./entities/User";
 import { apollo } from './middleware/apolloServer';
 import { session } from "./middleware/session";
 import { PORT } from "./constants";
+import path from "path"
 
 config()
 
 const { pgUser, pgPass, dbName } = process.env
 const main = async () => {
-  await createConnection({
+  const conn = await createConnection({
     type: 'postgres',
     database: dbName,
     username: pgUser,
     password: pgPass,
     logging: true,
     synchronize: true,
+    migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, User]
   })
+  await conn.runMigrations()
 
   const app = Express();
   app.use(cors)
