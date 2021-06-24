@@ -1,43 +1,41 @@
-import {cors} from "./middleware/cors";
+import { cors } from "./cors";
 import { config } from "dotenv";
 import Express from "express";
 import 'reflect-metadata';
-import { createConnection } from "typeorm";
-import { Post } from "./entities/Post";
-import { User } from "./entities/User";
-import { apollo } from './middleware/apolloServer';
-import { session } from "./middleware/session";
+import { session } from "./session";
 import { PORT } from "./constants";
-import path from "path"
+import { redis } from "./session"
+import { db } from "./db";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
+import { HelloResolver } from "./resolvers/hello";
+import { PostResolver } from "./resolvers/post";
+import { UserResolver } from "./resolvers/user";
 
 config()
 
-const { pgUser, pgPass, dbName } = process.env
-const main = async () => {
-  const conn = await createConnection({
-    type: 'postgres',
-    database: dbName,
-    username: pgUser,
-    password: pgPass,
-    logging: true,
-    synchronize: true,
-    migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User]
-  })
-  await conn.runMigrations()
 
+const main = async () => {
+  await db()
   const app = Express();
   app.use(cors)
   app.use(session)
-  await apollo(app)
-  
+  const apollo = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [HelloResolver, PostResolver, UserResolver],
+      validate: false
+    }),
+    context: ({ req, res }) => ({ req, res, redis })
+
+  })
+  apollo.applyMiddleware({ app, cors: false })
   app.listen(PORT, () => {
     console.log(`Listening on Port ${PORT}`)
+  }).on("Error", (err) => {
+    console.error("Error:", err)
   })
 
 
 }
 
-main().catch(err => {
-  console.error(err)
-})
+export default main()
