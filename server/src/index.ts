@@ -1,25 +1,55 @@
-import { cors } from "./cors";
+
 import { config } from "dotenv";
 import Express from "express";
 import 'reflect-metadata';
-import { session } from "./session";
 import { PORT } from "./constants";
-import { redis } from "./session"
-import { db } from "./db";
+
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
+import cors from "cors"
+import connectRedis from "connect-redis";
+import Session from "express-session";
+import { COOKIE_NAME, __prod__, SECRET_KEY } from "./constants";
+import Redis from 'ioredis';
+import { createConnection } from "typeorm";
+import { Post } from "./entities/Post";
+import { User } from "./entities/User";
 
 config()
 
 
 const main = async () => {
-  await db()
+  const { pgUser, pgPass, dbName } = process.env
+  await createConnection({
+    type: 'postgres',
+    database: dbName,
+    username: pgUser,
+    password: pgPass,
+    logging: true,
+    synchronize: true,
+    entities: [Post, User]
+  })
   const app = Express();
-  app.use(cors)
-  app.use(session)
+  app.use(cors())
+  const RedisStore = connectRedis(Session)
+  const redis = new Redis()
+  app.use(Session({
+    name: COOKIE_NAME,
+    store: new RedisStore({ client: redis, disableTouch: true }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 year cookie
+      httpOnly: true,
+      sameSite: 'lax', //csrf
+      secure: __prod__ //cookie only works in https
+    },
+    secret: SECRET_KEY,
+    resave: false,
+    saveUninitialized: true
+  }))
+
   const apollo = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
@@ -28,7 +58,7 @@ const main = async () => {
     context: ({ req, res }) => ({ req, res, redis })
 
   })
-  apollo.applyMiddleware({ app, cors: false })
+  apollo.applyMiddleware({ app, cors: true })
   app.listen(PORT, () => {
     console.log(`Listening on Port ${PORT}`)
   }).on("Error", (err) => {
