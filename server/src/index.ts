@@ -11,7 +11,7 @@ import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import cors from "cors"
 import connectRedis from "connect-redis";
-import Session from "express-session";
+import session from "express-session";
 import { COOKIE_NAME, __prod__, SECRET_KEY } from "./constants";
 import Redis from 'ioredis';
 import { createConnection } from "typeorm";
@@ -34,11 +34,14 @@ const main = async () => {
   })
   const app = Express();
   app.use(cors())
-  const RedisStore = connectRedis(Session)
+  const RedisStore = connectRedis(session)
   const redis = new Redis()
-  app.use(Session({
+  app.use(session({
     name: COOKIE_NAME,
-    store: new RedisStore({ client: redis, disableTouch: true }),
+    store: new RedisStore({
+      client: redis,
+      disableTouch: true
+    }),
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 year cookie
       httpOnly: true,
@@ -47,7 +50,7 @@ const main = async () => {
     },
     secret: SECRET_KEY,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false
   }))
 
   const apollo = new ApolloServer({
@@ -58,7 +61,7 @@ const main = async () => {
     context: ({ req, res }) => ({ req, res, redis })
 
   })
-  apollo.applyMiddleware({ app, cors: true })
+  apollo.applyMiddleware({ app, cors: false })
   app.listen(PORT, () => {
     console.log(`Listening on Port ${PORT}`)
   }).on("Error", (err) => {

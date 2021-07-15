@@ -208,7 +208,6 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-
     return {
       user,
     };
